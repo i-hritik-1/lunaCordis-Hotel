@@ -35,6 +35,7 @@ public class Room {
     @Column(columnDefinition = "TEXT[]")
     private String[] amenities;
 
+    @Column(nullable = false)
     private Integer totalCount;
     private Integer capacity;
 

@@ -28,7 +28,7 @@ public class Hotel {
     private String[] photos;
 
     @Column(columnDefinition = "TEXT[]")
-    private String amenities;
+    private String[] amenities;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -41,6 +41,8 @@ public class Hotel {
 
     @OneToMany(mappedBy = "hotel", fetch = FetchType.LAZY)
     private List<Room> rooms;
+
+    private Boolean active;
 
 
 }
