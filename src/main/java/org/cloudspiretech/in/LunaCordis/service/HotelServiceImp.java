@@ -44,6 +44,7 @@ public class HotelServiceImp implements HotelService{
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel with id " + id + " not found."));
 
+//        hotel.setId(id);
         modelMapper.map(hotelDto, hotel);
         hotel.setId(id);
         hotel = hotelRepository.save(hotel);
@@ -64,7 +65,17 @@ public class HotelServiceImp implements HotelService{
         return null;
     }
 
+    @Override
+    public void activateHotel(Long id) {
+        log.info("Activating hotel with id.{}", id);
+        Hotel hotel = hotelRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel with id " + id + " not found."));
 
+        hotel.setActive(true);
+        hotelRepository.save(hotel);
+
+        // TODO CREATE inventory for all the rooms of the hotel
+    }
 
 
 }
