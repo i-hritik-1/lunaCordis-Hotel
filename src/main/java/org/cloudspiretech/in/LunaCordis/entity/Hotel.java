@@ -44,5 +44,8 @@ public class Hotel {
 
     private Boolean active;
 
+    @ManyToOne
+    private User owner;
+
 
 }
