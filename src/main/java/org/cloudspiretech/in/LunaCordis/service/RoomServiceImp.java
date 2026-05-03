@@ -1,29 +1,42 @@
 package org.cloudspiretech.in.LunaCordis.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.cloudspiretech.in.LunaCordis.dto.RoomDto;
+import org.cloudspiretech.in.LunaCordis.entity.Hotel;
 import org.cloudspiretech.in.LunaCordis.entity.Room;
+import org.cloudspiretech.in.LunaCordis.exception.ResourceNotFoundException;
+import org.cloudspiretech.in.LunaCordis.repository.HotelRepository;
 import org.cloudspiretech.in.LunaCordis.repository.RoomRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RoomServiceImp implements RoomService {
 
     private final RoomRepository roomRepository;
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+    private final HotelRepository hotelRepository;
+
     @Override
-    public RoomDto createNewRoom(RoomDto roomDto) {
-        if(roomDto == null)
-        {
-            return null;
-        }
+    public RoomDto createNewRoom(RoomDto roomDto, Long hotelId) {
+
+        log.info("Creating room in hotel with hotel id {}", hotelId);
+
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(()-> new ResourceNotFoundException("Hotel Not found with id " + hotelId));
+
 
         Room room = modelMapper.map(roomDto, Room.class);
-        roomRepository.save(room);
+        room.setHotel(hotel);
+        room = roomRepository.save(room);
+
+        // Create inventory for it as soon as the room is created and if hotel is active
 
         return modelMapper.map(room,RoomDto.class);
     }
@@ -35,16 +48,42 @@ public class RoomServiceImp implements RoomService {
 
     @Override
     public RoomDto getRoomById(Long id) {
-        return null;
+        log.info("Getting room with id {}", id);
+
+        Room room = roomRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Room Not Found with id " + id));
+
+        return modelMapper.map(room, RoomDto.class);
     }
 
     @Override
     public void deleteRoomById(Long id) {
+        log.info("Deleting room with id {}", id);
+
+         boolean exists = roomRepository.existsById(id);
+
+         if(!exists){
+             throw new ResourceNotFoundException("Room Not Found with id " + id);
+         }
+
+         roomRepository.deleteById(id);
+
+         // Todo delete all the future inventory for this room
+
 
     }
 
     @Override
     public List<RoomDto> getAllRoomsOfHotel(Long hotelId) {
-        return List.of();
+        log.info("Getting all rooms in hotel with hotel id {}", hotelId);
+
+        Hotel hotel = hotelRepository
+                .findById(hotelId)
+                .orElseThrow(()->new ResourceNotFoundException("Hotel Not found with id " + hotelId));
+
+        return hotel.getRooms()
+                .stream()
+                .map((element) -> modelMapper.map(element, RoomDto.class))
+                .collect(Collectors.toList());
     }
 }

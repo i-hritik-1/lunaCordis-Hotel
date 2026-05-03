@@ -5,7 +5,7 @@ import org.cloudspiretech.in.LunaCordis.dto.RoomDto;
 import java.util.List;
 public interface RoomService {
 
-    RoomDto createNewRoom(RoomDto roomDto);
+    RoomDto createNewRoom(RoomDto roomDto,  Long hotelId);
     RoomDto updateRoom(RoomDto roomDto);
     RoomDto getRoomById(Long id);
     void deleteRoomById(Long id);
