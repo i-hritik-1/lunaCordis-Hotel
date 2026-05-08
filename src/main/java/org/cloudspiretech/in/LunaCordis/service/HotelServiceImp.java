@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloudspiretech.in.LunaCordis.dto.HotelDto;
 import org.cloudspiretech.in.LunaCordis.entity.Hotel;
+import org.cloudspiretech.in.LunaCordis.entity.Room;
 import org.cloudspiretech.in.LunaCordis.exception.ResourceNotFoundException;
 import org.cloudspiretech.in.LunaCordis.repository.HotelRepository;
 import org.modelmapper.ModelMapper;
@@ -16,6 +17,9 @@ public class HotelServiceImp implements HotelService{
 
     private final HotelRepository hotelRepository;
     private final ModelMapper modelMapper;
+    private final InventoryService inventoryService;
+
+
     @Override
     public HotelDto createNewHotel(HotelDto hotelDto) {
         log.info("Creating a new hotel with name.{}", hotelDto.getName());
@@ -53,16 +57,20 @@ public class HotelServiceImp implements HotelService{
     }
 
     @Override
-    public  Void deleteHotelById(Long id)
+    public void deleteHotelById(Long id)
     {
         log.info("Deleting hotel with id.{}", id);
-        HotelDto hotelDto = getHotelById(id);
+        Hotel hotel = hotelRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel with id " + id + " not found."));
 
-        if (null != hotelDto) {
-            hotelRepository.deleteById(id);
-            // Delete the future inventory for this hotel
+        hotelRepository.deleteById(id);
+
+//        Deleting future inventory for the room
+
+        for (Room room : hotel.getRooms()) {
+            inventoryService.deleteFutureInventory(room);
         }
-        return null;
+
     }
 
     @Override
@@ -74,7 +82,10 @@ public class HotelServiceImp implements HotelService{
         hotel.setActive(true);
         hotelRepository.save(hotel);
 
-        // TODO CREATE inventory for all the rooms of the hotel
+        // Assuming only do it once
+        for (Room room : hotel.getRooms()) {
+            inventoryService.initializeRoomForAYear(room);
+        }
     }
 
 

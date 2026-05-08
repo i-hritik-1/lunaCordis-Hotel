@@ -49,5 +49,4 @@ public class RoomController {
         return ResponseEntity.noContent().build();
     }
 
-
 }

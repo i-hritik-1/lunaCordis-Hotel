@@ -55,7 +55,6 @@ public class HotelController {
     public ResponseEntity<Void> activateHotel(@PathVariable Long id)
     {
         hotelService.activateHotel(id);
-
         return ResponseEntity.noContent().build();
     }
 }

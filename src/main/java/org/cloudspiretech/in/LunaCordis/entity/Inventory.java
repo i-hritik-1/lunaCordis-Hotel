@@ -1,8 +1,7 @@
 package org.cloudspiretech.in.LunaCordis.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,7 +11,14 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Setter
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"hotel_id","room_id","date"}))
+@Table(uniqueConstraints = @UniqueConstraint(
+        name = "unique_hotel_room_date",
+        columnNames = {"hotel_id","room_id","date"}
+
+))
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Inventory {
 
     @Id
