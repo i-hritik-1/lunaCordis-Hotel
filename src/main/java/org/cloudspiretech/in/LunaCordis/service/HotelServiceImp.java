@@ -1,5 +1,6 @@
 package org.cloudspiretech.in.LunaCordis.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloudspiretech.in.LunaCordis.dto.HotelDto;
@@ -57,6 +58,7 @@ public class HotelServiceImp implements HotelService{
     }
 
     @Override
+    @Transactional
     public void deleteHotelById(Long id)
     {
         log.info("Deleting hotel with id.{}", id);

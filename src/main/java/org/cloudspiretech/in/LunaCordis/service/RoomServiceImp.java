@@ -1,5 +1,6 @@
 package org.cloudspiretech.in.LunaCordis.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloudspiretech.in.LunaCordis.dto.RoomDto;
@@ -62,6 +63,7 @@ public class RoomServiceImp implements RoomService {
     }
 
     @Override
+    @Transactional
     public void deleteRoomById(Long id) {
         log.info("Deleting room with id {}", id);
 
@@ -73,9 +75,9 @@ public class RoomServiceImp implements RoomService {
              throw new ResourceNotFoundException("Room Not Found with id " + id);
          }
 
+         inventoryService.deleteFutureInventory(room);
          roomRepository.deleteById(id);
 
-         inventoryService.deleteFutureInventory(room);
 
     }
 
