@@ -4,12 +4,18 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloudspiretech.in.LunaCordis.dto.HotelDto;
+import org.cloudspiretech.in.LunaCordis.dto.HotelInfoDto;
+import org.cloudspiretech.in.LunaCordis.dto.RoomDto;
 import org.cloudspiretech.in.LunaCordis.entity.Hotel;
 import org.cloudspiretech.in.LunaCordis.entity.Room;
 import org.cloudspiretech.in.LunaCordis.exception.ResourceNotFoundException;
 import org.cloudspiretech.in.LunaCordis.repository.HotelRepository;
+import org.cloudspiretech.in.LunaCordis.repository.RoomRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +25,7 @@ public class HotelServiceImp implements HotelService{
     private final HotelRepository hotelRepository;
     private final ModelMapper modelMapper;
     private final InventoryService inventoryService;
+    private final RoomRepository roomRepository;
 
 
     @Override
@@ -40,6 +47,32 @@ public class HotelServiceImp implements HotelService{
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel with id " + id + " not found."));
         return modelMapper.map(hotel, HotelDto.class);
     }
+
+    @Override
+    public List<HotelDto> getAllHotels()
+    {
+        List<Hotel> allHotels = hotelRepository.findAll();
+
+        return allHotels.stream()
+                .map((hotel) -> modelMapper.map(hotel,HotelDto.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public HotelInfoDto getHotelInfoById(Long hotelId) {
+
+        Hotel hotel = hotelRepository
+                .findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel with id " + hotelId + " not found."));
+
+        List<RoomDto> rooms = hotel.getRooms()
+                .stream()
+                .map((element) -> modelMapper.map(element, RoomDto.class))
+                .toList();
+
+        return new HotelInfoDto(modelMapper.map(hotel, HotelDto.class),rooms);
+    }
+
 
     @Override
     public HotelDto updateHotelById(Long id, HotelDto hotelDto)
@@ -71,6 +104,7 @@ public class HotelServiceImp implements HotelService{
 
         for (Room room : hotel.getRooms()) {
             inventoryService.deleteFutureInventory(room);
+            roomRepository.deleteById(room.getId());
         }
 
     }

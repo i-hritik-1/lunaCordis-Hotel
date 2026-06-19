@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/hotels")
 @RequiredArgsConstructor
@@ -32,6 +34,13 @@ public class HotelController {
         HotelDto hotel = hotelService.getHotelById(id);
 
         return ResponseEntity.ok(hotel);
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<HotelDto>> getAllHotels()
+    {
+        List<HotelDto> hotels = hotelService.getAllHotels();
+        return ResponseEntity.ok(hotels);
     }
 
     @PutMapping("/{hotelId}")
