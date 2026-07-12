@@ -44,6 +44,7 @@ public class InventoryServiceImp implements InventoryService{
                     .hotel(room.getHotel())
                     .room(room)
                     .bookedCount(0)
+                    .reservedCount(0)
                     .city(room.getHotel().getCity())
                     .date(today)
                     .price(room.getBasePrice())
@@ -65,6 +66,7 @@ public class InventoryServiceImp implements InventoryService{
         inventoryRepository.deleteByRoom(room);
     }
 
+
     @Override
     public Page<HotelDto> searchHotels(HotelSearchRequestDto hotelSearchRequestDto) {
         Pageable pageable = PageRequest.of(hotelSearchRequestDto.getPage(), hotelSearchRequestDto.getSize());
@@ -83,5 +85,4 @@ public class InventoryServiceImp implements InventoryService{
 
         return hotelPage.map((hotel) -> modelMapper.map(hotel,HotelDto.class));
     }
-
 }

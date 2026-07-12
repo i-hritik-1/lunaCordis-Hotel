@@ -26,6 +26,7 @@ public class RoomServiceImp implements RoomService {
     private final InventoryService inventoryService;
 
     @Override
+    @Transactional
     public RoomDto createNewRoom(RoomDto roomDto, Long hotelId) {
 
         log.info("Creating room in hotel with hotel id {}", hotelId);
@@ -33,6 +34,14 @@ public class RoomServiceImp implements RoomService {
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(()-> new ResourceNotFoundException("Hotel Not found with id " + hotelId));
 
+        // Validate required fields before creating the room
+        if (roomDto.getBasePrice() == null || roomDto.getTotalCount() == null) {
+            throw new IllegalArgumentException("Room basePrice and totalCount are required fields");
+        }
+
+        if (hotel.getCity() == null || hotel.getCity().isEmpty()) {
+            throw new IllegalArgumentException("Hotel city must be set before adding rooms");
+        }
 
         Room room = modelMapper.map(roomDto, Room.class);
         room.setHotel(hotel);
