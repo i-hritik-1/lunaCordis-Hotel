@@ -5,12 +5,10 @@ import org.cloudspiretech.in.LunaCordis.entity.Inventory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class UrgencyPricingStrategy implements PricingStrategy{
+public class HolidayPricingStrategy implements PricingStrategy{
 
     private final PricingStrategy wrapped;
 
@@ -18,14 +16,11 @@ public class UrgencyPricingStrategy implements PricingStrategy{
     public BigDecimal calculatePrice(Inventory inventory) {
 
         BigDecimal price = wrapped.calculatePrice(inventory);
+        Boolean isTodayHoliday = true; // TODO : Call api to check the holiday or you can use the hard coded value for holiday
 
-        LocalDate today = LocalDate.now();
-        LocalDate date = inventory.getDate();
-        int daysCount = date.getDayOfMonth() - today.getDayOfMonth();
-
-        if(daysCount <= 7 && !date.isBefore(today))
+        if (isTodayHoliday)
         {
-            price = price.multiply(BigDecimal.valueOf(1.5));
+            price = price.multiply(BigDecimal.valueOf(1.8));
         }
 
         return price;
